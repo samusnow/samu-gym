@@ -8,30 +8,44 @@ let remaining = 0;
 let total = 0;
 let startTime = Date.now();
 
-const bellSound = new Audio("sounds/bell.mp3");
-bellSound.preload = "auto";
-bellSound.volume = 0.8;
+const bellSounds = [
+  new Audio("sounds/bell.mp3"),
+  new Audio("sounds/bell.mp3"),
+  new Audio("sounds/bell.mp3")
+];
 
+bellSounds.forEach(audio => {
+  audio.preload = "auto";
+  audio.volume = 0.8;
+});
+
+let bellIndex = 0;
 let audioUnlocked = false;
 
 function unlockAudio(){
   if(audioUnlocked) return;
 
-  bellSound.volume = 0;
-  bellSound.play()
-    .then(() => {
-      bellSound.pause();
-      bellSound.currentTime = 0;
-      bellSound.volume = 0.8;
-      audioUnlocked = true;
-      console.log("Audio sbloccato");
+  Promise.allSettled(
+    bellSounds.map(audio => {
+      audio.volume = 0;
+      return audio.play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = 0.8;
+        });
     })
-    .catch(e => {
-      bellSound.volume = 0.8;
-      console.log("Audio non ancora sbloccato", e);
+  ).then(() => {
+    bellSounds.forEach(audio => {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = 0.8;
     });
-}
 
+    audioUnlocked = true;
+    console.log("Audio sbloccato");
+  });
+}
 const els = {
   title: document.getElementById("title"),
   subtitle: document.getElementById("subtitle"),
