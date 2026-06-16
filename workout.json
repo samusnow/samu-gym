@@ -1,0 +1,152 @@
+{
+  "title": "Samu-Gym",
+  "subtitle": "Home Training System",
+  "rounds": 3,
+  "betweenRoundsRest": 120,
+  "defaultRest": 60,
+  "exercises": [
+    {
+      "name": "Panca piana bilanciere",
+      "group": "PETTO",
+      "reps": "8-10 reps",
+      "rest": 60,
+      "image": "img/panca.jpg",
+      "tips": [
+        "Piedi ben piantati",
+        "Petto in fuori",
+        "Discesa controllata 2 sec"
+      ]
+    },
+    {
+      "name": "Spinte manubri sopra la testa",
+      "group": "SPALLE",
+      "reps": "8-10 reps",
+      "rest": 60,
+      "image": "img/spalle.jpg",
+      "tips": [
+        "Schiena dritta",
+        "Movimento lento",
+        "Non inarcare"
+      ]
+    },
+    {
+      "name": "Rematore kettlebell",
+      "group": "SCHIENA",
+      "reps": "12 per lato",
+      "rest": 45,
+      "image": "img/rematore.jpg",
+      "tips": [
+        "Tirare verso il fianco",
+        "Schiena stabile",
+        "Niente slanci"
+      ]
+    },
+    {
+      "name": "Curl manubri alternato",
+      "group": "BICIPITI",
+      "reps": "10-12 reps",
+      "rest": 45,
+      "image": "img/curl.jpg",
+      "tips": [
+        "Gomiti fermi",
+        "Discesa lenta",
+        "Non oscillare col busto"
+      ]
+    },
+    {
+      "name": "Lat machine al petto",
+      "group": "SCHIENA",
+      "reps": "10-12 reps",
+      "rest": 60,
+      "image": "img/lat.jpg",
+      "tips": [
+        "Petto in fuori",
+        "Barra al petto",
+        "Mai dietro la testa"
+      ]
+    },
+    {
+      "name": "Aperture con manubri",
+      "group": "PETTO",
+      "reps": "12-15 reps",
+      "rest": 45,
+      "image": "img/aperture.jpg",
+      "tips": [
+        "Movimento ampio",
+        "Controllo totale",
+        "No rimbalzi"
+      ]
+    },
+    {
+      "name": "Pushdown con corda",
+      "group": "TRICIPITI",
+      "reps": "10-12 reps",
+      "rest": 45,
+      "image": "img/tricipiti.jpg",
+      "tips": [
+        "Gomiti fermi vicino al corpo",
+        "Apri la corda in basso",
+        "Ritorno lento"
+      ]
+    },
+    {
+      "name": "Sollevamento gambe",
+      "group": "ADDOME",
+      "reps": "15 reps",
+      "rest": 0,
+      "image": "img/legraise.jpg",
+      "tips": [
+        "Movimento controllato",
+        "Non inarcare la schiena"
+      ]
+    },
+    {
+      "name": "Obliqui + Bicycle crunch",
+      "group": "ADDOME",
+      "reps": "20 per lato + 20-30 totali",
+      "rest": 0,
+      "image": "img/obliqui.jpg",
+      "tips": [
+        "Lento",
+        "Non tirare il collo",
+        "Ruota il busto"
+      ]
+    },
+    {
+      "name": "Plank",
+      "group": "ADDOME",
+      "duration": 45,
+      "rest": 45,
+      "image": "img/plank.jpg",
+      "tips": [
+        "Corpo in linea",
+        "Addome contratto",
+        "Respira"
+      ]
+    },
+    {
+      "name": "Goblet squat",
+      "group": "GAMBE",
+      "reps": "15-20 reps",
+      "rest": 45,
+      "image": "img/squat.jpg",
+      "tips": [
+        "Kettlebell al petto",
+        "Schiena dritta",
+        "Ginocchia seguono i piedi"
+      ]
+    },
+    {
+      "name": "Affondi",
+      "group": "GAMBE",
+      "reps": "10-12 per gamba",
+      "rest": 45,
+      "image": "img/affondi.jpg",
+      "tips": [
+        "Busto dritto",
+        "Passo lungo",
+        "Movimento lento"
+      ]
+    }
+  ]
+}

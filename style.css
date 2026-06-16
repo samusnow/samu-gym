@@ -1,0 +1,80 @@
+:root{
+  --bg:#101114;
+  --card:#1b1d23;
+  --text:#f4f4f5;
+  --muted:#a8acb3;
+  --accent:#ff7a1a;
+  --good:#39d98a;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:radial-gradient(circle at top,#252936 0,#101114 48%,#07080a 100%);
+  color:var(--text);
+}
+main{min-height:100vh;padding:28px;display:flex;flex-direction:column}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+h1{margin:0;font-size:44px;letter-spacing:.5px}
+#subtitle{margin:4px 0 0;color:var(--muted);font-size:18px}
+#status{font-size:22px;color:var(--good);font-weight:700}
+.card{
+  background:rgba(27,29,35,.94);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:28px;
+  padding:28px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  flex:1;
+}
+.topline{display:flex;justify-content:space-between;color:var(--muted);font-size:24px;font-weight:700}
+h2{margin:20px 0 0;color:var(--accent);font-size:30px;letter-spacing:2px}
+h3{margin:4px 0 22px;font-size:54px;line-height:1.05}
+.content{display:grid;grid-template-columns:48% 1fr;gap:30px;align-items:center}
+.imageBox{
+  position:relative;
+  height:430px;
+  background:#fff;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.imageBox img{max-width:100%;max-height:100%;display:block}
+#imageFallback{display:none;color:#222;text-align:center;font-size:32px;font-weight:800}
+.target{font-size:64px;font-weight:900;margin-bottom:24px}
+ul{font-size:28px;line-height:1.45;margin:0;padding-left:34px;color:#e5e7eb}
+.timer{
+  font-size:110px;
+  font-weight:1000;
+  color:var(--accent);
+  margin-top:24px;
+  letter-spacing:2px;
+}
+.hidden{display:none}
+.progress{height:12px;background:#30333b;border-radius:99px;margin:26px 0;overflow:hidden}
+#bar{height:100%;width:0;background:var(--accent);transition:width .2s linear}
+.buttons{display:flex;gap:18px}
+button{
+  flex:1;
+  border:0;
+  border-radius:18px;
+  padding:20px 24px;
+  font-size:24px;
+  font-weight:900;
+  background:#30333b;
+  color:var(--text);
+}
+button.primary{background:var(--accent);color:#111}
+.help{color:var(--muted);font-size:16px;text-align:center;margin:18px 0 0}
+.restMode h2{color:var(--good)}
+.restMode .target{display:none}
+.restMode .timer{display:block}
+.finished h3{font-size:64px}
+@media(max-width:900px){
+  .content{grid-template-columns:1fr}
+  .imageBox{height:300px}
+  h3{font-size:38px}
+  .target{font-size:44px}
+  .timer{font-size:72px}
+}
