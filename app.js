@@ -8,6 +8,30 @@ let remaining = 0;
 let total = 0;
 let startTime = Date.now();
 
+const bellSound = new Audio("sounds/bell.mp3");
+bellSound.preload = "auto";
+bellSound.volume = 0.8;
+
+let audioUnlocked = false;
+
+function unlockAudio(){
+  if(audioUnlocked) return;
+
+  bellSound.volume = 0;
+  bellSound.play()
+    .then(() => {
+      bellSound.pause();
+      bellSound.currentTime = 0;
+      bellSound.volume = 0.8;
+      audioUnlocked = true;
+      console.log("Audio sbloccato");
+    })
+    .catch(e => {
+      bellSound.volume = 0.8;
+      console.log("Audio non ancora sbloccato", e);
+    });
+}
+
 const els = {
   title: document.getElementById("title"),
   subtitle: document.getElementById("subtitle"),
@@ -254,6 +278,8 @@ function clearTimer(){
 }
 
 function togglePause(){
+  unlockAudio();
+
   if(mode === "finished") return;
 
   paused = !paused;
@@ -268,16 +294,17 @@ function togglePause(){
 }
 
 function beep(){
-  try{
-    const audio = new Audio("sounds/bell.mp3");
-    audio.volume = 0.8;
-    audio.play();
-  }
-  catch(e){
-    console.log("Audio non riproducibile", e);
-  }
+  bellSound.currentTime = 0;
+  bellSound.volume = 0.8;
+
+  bellSound.play().catch(e => {
+    console.log("Campana bloccata o non riproducibile", e);
+  });
 }
+
 els.done.onclick = () => {
+  unlockAudio();
+
   if(mode === "finished"){
     round = 1;
     index = 0;
@@ -294,7 +321,11 @@ els.done.onclick = () => {
 };
 
 els.pause.onclick = togglePause;
-els.prev.onclick = previous;
+
+els.prev.onclick = () => {
+  unlockAudio();
+  previous();
+};
 
 document.addEventListener("keydown", e => {
   if(["Enter"," ","ArrowRight"].includes(e.key)){
