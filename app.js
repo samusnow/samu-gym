@@ -8,61 +8,6 @@ let remaining = 0;
 let total = 0;
 let startTime = Date.now();
 
-/* AUDIO CAMPANA - più stabile per iPad */
-const bellSounds = [
-  new Audio("sounds/bell.mp3"),
-  new Audio("sounds/bell.mp3"),
-  new Audio("sounds/bell.mp3")
-];
-
-bellSounds.forEach(audio => {
-  audio.preload = "auto";
-  audio.volume = 0.8;
-});
-
-let bellIndex = 0;
-let audioUnlocked = false;
-
-function unlockAudio(){
-  if(audioUnlocked) return;
-
-  Promise.allSettled(
-    bellSounds.map(audio => {
-      audio.volume = 0;
-      return audio.play()
-        .then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.volume = 0.8;
-        });
-    })
-  ).then(() => {
-    bellSounds.forEach(audio => {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.volume = 0.8;
-    });
-
-    audioUnlocked = true;
-    console.log("Audio sbloccato");
-  });
-}
-
-function beep(){
-  const audio = bellSounds[bellIndex];
-  bellIndex = (bellIndex + 1) % bellSounds.length;
-
-  audio.pause();
-  audio.currentTime = 0;
-  audio.volume = 0.8;
-
-  setTimeout(() => {
-    audio.play().catch(e => {
-      console.log("Campana bloccata o non riproducibile", e);
-    });
-  }, 50);
-}
-
 const els = {
   title: document.getElementById("title"),
   subtitle: document.getElementById("subtitle"),
@@ -133,7 +78,12 @@ function renderExercise(){
     els.fallback.style.display = "block";
   };
 
-  els.done.textContent = ex.duration ? "AVVIA TIMER ▶" : "FATTO / AVANTI ▶";
+  if(ex.duration){
+    els.done.textContent = "AVVIA TIMER ▶";
+  } else {
+    els.done.textContent = "FATTO / AVANTI ▶";
+  }
+
   els.pause.textContent = "⏸ Pausa";
 }
 
@@ -206,45 +156,36 @@ function startCountdown(seconds, countdownType){
   tick();
 
   timer = setInterval(() => {
-    if(paused) return;
-
-    remaining--;
-
-    if(remaining <= 0){
-      remaining = 0;
+    if(!paused){
+      remaining--;
       tick();
-      beep();
-      clearTimer();
-      completeCountdown(countdownType);
-      return;
-    }
 
-    tick();
+      if(remaining <= 0){
+        beep();
+        clearTimer();
+
+        if(countdownType === "exerciseTimer"){
+          startRest(currentExercise().rest ?? workout.defaultRest ?? 60);
+        } else if(countdownType === "roundRest"){
+          round++;
+          index = 0;
+          renderExercise();
+        } else {
+          nextExercise();
+        }
+      }
+    }
   }, 1000);
 }
 
-function completeCountdown(countdownType){
-  if(countdownType === "exerciseTimer"){
-    startRest(currentExercise().rest ?? workout.defaultRest ?? 60);
-  } else if(countdownType === "roundRest"){
-    round++;
-    index = 0;
-    renderExercise();
-  } else {
-    nextExercise();
-  }
-}
-
 function tick(){
-  const safeRemaining = Math.max(0, remaining);
-
-  const m = String(Math.floor(safeRemaining / 60)).padStart(2,"0");
-  const s = String(safeRemaining % 60).padStart(2,"0");
+  const m = String(Math.floor(remaining/60)).padStart(2,"0");
+  const s = String(remaining%60).padStart(2,"0");
 
   els.timer.textContent = `${m}:${s}`;
 
   if(total > 0){
-    els.bar.style.width = `${100 - (safeRemaining / total * 100)}%`;
+    els.bar.style.width = `${100 - (remaining/total*100)}%`;
   } else {
     els.bar.style.width = "0%";
   }
@@ -313,8 +254,6 @@ function clearTimer(){
 }
 
 function togglePause(){
-  unlockAudio();
-
   if(mode === "finished") return;
 
   paused = !paused;
@@ -328,9 +267,17 @@ function togglePause(){
   }
 }
 
+function beep(){
+  try{
+    const audio = new Audio("sounds/bell.mp3");
+    audio.volume = 0.8;
+    audio.play();
+  }
+  catch(e){
+    console.log("Audio non riproducibile", e);
+  }
+}
 els.done.onclick = () => {
-  unlockAudio();
-
   if(mode === "finished"){
     round = 1;
     index = 0;
@@ -347,11 +294,7 @@ els.done.onclick = () => {
 };
 
 els.pause.onclick = togglePause;
-
-els.prev.onclick = () => {
-  unlockAudio();
-  previous();
-};
+els.prev.onclick = previous;
 
 document.addEventListener("keydown", e => {
   if(["Enter"," ","ArrowRight"].includes(e.key)){
@@ -364,7 +307,6 @@ document.addEventListener("keydown", e => {
   }
 
   if(e.key === "ArrowLeft"){
-    unlockAudio();
     previous();
   }
 });
