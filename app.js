@@ -8,6 +8,7 @@ let remaining = 0;
 let total = 0;
 let startTime = Date.now();
 
+/* AUDIO CAMPANA - più stabile per iPad */
 const bellSounds = [
   new Audio("sounds/bell.mp3"),
   new Audio("sounds/bell.mp3"),
@@ -46,6 +47,22 @@ function unlockAudio(){
     console.log("Audio sbloccato");
   });
 }
+
+function beep(){
+  const audio = bellSounds[bellIndex];
+  bellIndex = (bellIndex + 1) % bellSounds.length;
+
+  audio.pause();
+  audio.currentTime = 0;
+  audio.volume = 0.8;
+
+  setTimeout(() => {
+    audio.play().catch(e => {
+      console.log("Campana bloccata o non riproducibile", e);
+    });
+  }, 50);
+}
+
 const els = {
   title: document.getElementById("title"),
   subtitle: document.getElementById("subtitle"),
@@ -116,12 +133,7 @@ function renderExercise(){
     els.fallback.style.display = "block";
   };
 
-  if(ex.duration){
-    els.done.textContent = "AVVIA TIMER ▶";
-  } else {
-    els.done.textContent = "FATTO / AVANTI ▶";
-  }
-
+  els.done.textContent = ex.duration ? "AVVIA TIMER ▶" : "FATTO / AVANTI ▶";
   els.pause.textContent = "⏸ Pausa";
 }
 
@@ -194,36 +206,45 @@ function startCountdown(seconds, countdownType){
   tick();
 
   timer = setInterval(() => {
-    if(!paused){
-      remaining--;
+    if(paused) return;
+
+    remaining--;
+
+    if(remaining <= 0){
+      remaining = 0;
       tick();
-
-      if(remaining <= 0){
-        beep();
-        clearTimer();
-
-        if(countdownType === "exerciseTimer"){
-          startRest(currentExercise().rest ?? workout.defaultRest ?? 60);
-        } else if(countdownType === "roundRest"){
-          round++;
-          index = 0;
-          renderExercise();
-        } else {
-          nextExercise();
-        }
-      }
+      beep();
+      clearTimer();
+      completeCountdown(countdownType);
+      return;
     }
+
+    tick();
   }, 1000);
 }
 
+function completeCountdown(countdownType){
+  if(countdownType === "exerciseTimer"){
+    startRest(currentExercise().rest ?? workout.defaultRest ?? 60);
+  } else if(countdownType === "roundRest"){
+    round++;
+    index = 0;
+    renderExercise();
+  } else {
+    nextExercise();
+  }
+}
+
 function tick(){
-  const m = String(Math.floor(remaining/60)).padStart(2,"0");
-  const s = String(remaining%60).padStart(2,"0");
+  const safeRemaining = Math.max(0, remaining);
+
+  const m = String(Math.floor(safeRemaining / 60)).padStart(2,"0");
+  const s = String(safeRemaining % 60).padStart(2,"0");
 
   els.timer.textContent = `${m}:${s}`;
 
   if(total > 0){
-    els.bar.style.width = `${100 - (remaining/total*100)}%`;
+    els.bar.style.width = `${100 - (safeRemaining / total * 100)}%`;
   } else {
     els.bar.style.width = "0%";
   }
@@ -307,15 +328,6 @@ function togglePause(){
   }
 }
 
-function beep(){
-  bellSound.currentTime = 0;
-  bellSound.volume = 0.8;
-
-  bellSound.play().catch(e => {
-    console.log("Campana bloccata o non riproducibile", e);
-  });
-}
-
 els.done.onclick = () => {
   unlockAudio();
 
@@ -352,6 +364,7 @@ document.addEventListener("keydown", e => {
   }
 
   if(e.key === "ArrowLeft"){
+    unlockAudio();
     previous();
   }
 });
