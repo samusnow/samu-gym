@@ -8,6 +8,122 @@ let remaining = 0;
 let total = 0;
 let startTime = Date.now();
 
+/*
+  AUDIO CAMPANA - versione iPad-safe
+  NON modifica timer, countdown, giri o logica allenamento.
+*/
+let audioCtx = null;
+let bellBuffer = null;
+let bellLoading = false;
+let audioUnlocked = false;
+
+const bellFallback = new Audio("sounds/bell.mp3");
+bellFallback.preload = "auto";
+bellFallback.volume = 0.8;
+
+function getAudioContext(){
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if(!AudioContextClass) return null;
+
+  if(!audioCtx){
+    audioCtx = new AudioContextClass();
+  }
+
+  return audioCtx;
+}
+
+function loadBellBuffer(){
+  if(bellBuffer || bellLoading) return;
+
+  const ctx = getAudioContext();
+  if(!ctx) return;
+
+  bellLoading = true;
+
+  fetch("sounds/bell.mp3")
+    .then(response => response.arrayBuffer())
+    .then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
+    .then(decoded => {
+      bellBuffer = decoded;
+      bellLoading = false;
+      console.log("Campana caricata in AudioContext");
+    })
+    .catch(err => {
+      bellLoading = false;
+      console.log("Campana WebAudio non caricata, uso fallback", err);
+    });
+}
+
+function unlockAudio(){
+  if(audioUnlocked) return;
+
+  const ctx = getAudioContext();
+
+  if(ctx){
+    ctx.resume().then(() => {
+      audioUnlocked = true;
+      loadBellBuffer();
+
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+
+      gain.gain.value = 0;
+
+      const emptyBuffer = ctx.createBuffer(1, 1, 22050);
+      source.buffer = emptyBuffer;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+
+      console.log("AudioContext sbloccato");
+    }).catch(err => {
+      console.log("AudioContext non sbloccato", err);
+    });
+  }
+
+  bellFallback.volume = 0;
+  bellFallback.play()
+    .then(() => {
+      bellFallback.pause();
+      bellFallback.currentTime = 0;
+      bellFallback.volume = 0.8;
+      audioUnlocked = true;
+      console.log("Audio fallback sbloccato");
+    })
+    .catch(() => {
+      bellFallback.volume = 0.8;
+    });
+}
+
+function beep(){
+  try{
+    const ctx = getAudioContext();
+
+    if(ctx && bellBuffer){
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+
+      source.buffer = bellBuffer;
+      gain.gain.value = 0.8;
+
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+      return;
+    }
+
+    bellFallback.pause();
+    bellFallback.currentTime = 0;
+    bellFallback.volume = 0.8;
+    bellFallback.play().catch(e => {
+      console.log("Audio non riproducibile", e);
+    });
+  }
+  catch(e){
+    console.log("Audio non riproducibile", e);
+  }
+}
+
 const els = {
   title: document.getElementById("title"),
   subtitle: document.getElementById("subtitle"),
@@ -254,6 +370,8 @@ function clearTimer(){
 }
 
 function togglePause(){
+  unlockAudio();
+
   if(mode === "finished") return;
 
   paused = !paused;
@@ -267,17 +385,9 @@ function togglePause(){
   }
 }
 
-function beep(){
-  try{
-    const audio = new Audio("sounds/bell.mp3");
-    audio.volume = 0.8;
-    audio.play();
-  }
-  catch(e){
-    console.log("Audio non riproducibile", e);
-  }
-}
 els.done.onclick = () => {
+  unlockAudio();
+
   if(mode === "finished"){
     round = 1;
     index = 0;
@@ -294,19 +404,26 @@ els.done.onclick = () => {
 };
 
 els.pause.onclick = togglePause;
-els.prev.onclick = previous;
+
+els.prev.onclick = () => {
+  unlockAudio();
+  previous();
+};
 
 document.addEventListener("keydown", e => {
   if(["Enter"," ","ArrowRight"].includes(e.key)){
     e.preventDefault();
+    unlockAudio();
     els.done.click();
   }
 
   if(e.key.toLowerCase() === "p"){
+    unlockAudio();
     togglePause();
   }
 
   if(e.key === "ArrowLeft"){
+    unlockAudio();
     previous();
   }
 });
