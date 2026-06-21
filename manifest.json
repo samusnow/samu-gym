@@ -1,0 +1,10 @@
+{
+  "name": "Samu-Gym",
+  "short_name": "Samu-Gym",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "orientation": "landscape"
+}
